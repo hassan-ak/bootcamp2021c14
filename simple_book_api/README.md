@@ -9,5 +9,5 @@
 
 ## Reading Material
 
-- []()
-- []()
+- [Simple Books API Requirements](https://github.com/vdespa/introduction-to-postman-course/blob/main/simple-books-api.md)
+- [AWS Resful API](<https://github.com/panacloud/bootcamp-2021/tree/main/code/project-04(aws-restful-api)>)
