@@ -4,6 +4,8 @@
 
 ### Sections
 
+- [Simple Book API](simple_book_api)
+
 ### Class 14 Videos
 
 - [English YouTube](https://www.youtube.com/watch?v=7YgZC0tZJ8A&ab_channel=CertifiedUnicornDeveloper)
