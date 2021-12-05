@@ -5,6 +5,7 @@
 ### Sections
 
 - [Simple Book API](simple_book_api)
+- [Testing graphql api with postman](./step01_testing_graphql_api_with_postman)
 
 ### Class 14 Videos
 
