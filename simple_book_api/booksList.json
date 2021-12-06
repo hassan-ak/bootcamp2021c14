@@ -1,0 +1,51 @@
+{
+    {
+        "name": "Zavia",
+        "author": "Ashfaq Ahmad",
+        "isbn": "978-9698305802",
+        "type": "non-fiction",
+        "price": 895,
+        "stock": 126,
+        "available": true
+    },{
+        "name": "Pir-e-Kamil",
+        "author": "Umera Ahmad",
+        "isbn": "978-969-0-02341-4",
+        "type": "fiction",
+        "price": 699,
+        "stock": 75,
+        "available": true
+    },{
+        "name": "Shahābnāmah",
+        "author": "Qudrat Ullah Shahab",
+        "isbn": "9789689766377",
+        "type": "non-fiction",
+        "price": 1050,
+        "stock": 13,
+        "available": true
+    },{
+        "name": "Raja Gidh",
+        "author": "Bano Qudsia",
+        "isbn": "969350514X",
+        "type": "fiction",
+        "price": 895,
+        "stock": 13,
+        "available": true
+    },{
+        "name": "Pakistan: A Personal History",
+        "author": "Imran Khan",
+        "isbn": "9780593067741",
+        "type": "non-fiction",
+        "price": 1554,
+        "stock": 185,
+        "available": true
+    },{
+        "name": "Yusuf ibn Tashfin",
+        "author": "Naseem Hijazi",
+        "isbn": "B083XTGK41",
+        "type": "fiction",
+        "price": 1200,
+        "stock": 2250,
+        "available": true
+    }
+}

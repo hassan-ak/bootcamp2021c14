@@ -1,12 +1,27 @@
-import { Stack, StackProps, aws_lambda, aws_apigateway } from "aws-cdk-lib";
+import {
+  Stack,
+  StackProps,
+  aws_lambda,
+  aws_apigateway,
+  aws_dynamodb,
+} from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 export class SimpleBookApiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // Lambda Functions
+    // DynamoDB Tables
+    // All Books Table
+    const allBooksTable = new aws_dynamodb.Table(this, "AllBooksTable", {
+      tableName: "Simple_Book_Api_All_Books",
+      partitionKey: {
+        name: "bookID",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+    });
 
+    // Lambda Functions
     // Welcome Function
     const welcomeFunction = new aws_lambda.Function(this, "welcomeFunction", {
       functionName: "Welcome-Function-Simple-Book-Api",
@@ -23,26 +38,53 @@ export class SimpleBookApiStack extends Stack {
       handler: "status.handler",
       memorySize: 1024,
     });
+    // Add new Books Function
+    const addBooksFunction = new aws_lambda.Function(this, "addBooksFunction", {
+      functionName: "Add-Books-Function-Simple-Book-Api",
+      runtime: aws_lambda.Runtime.NODEJS_14_X,
+      code: aws_lambda.Code.fromAsset("lambdas"),
+      handler: "addBooks.handler",
+      memorySize: 1024,
+      environment: {
+        PRIMARY_KEY_ALL: "bookID",
+        TABLE_NAME_ALL: allBooksTable.tableName,
+      },
+    });
+
+    // Grant the Lambda function read access to the DynamoDB table
+    allBooksTable.grantReadWriteData(addBooksFunction);
 
     // Lambda function integrations for the api gateway
+    // Welcome message
     const welcomeFunctionIntegration = new aws_apigateway.LambdaIntegration(
       welcomeFunction
     );
+    // Status of APi
     const statusFunctionIntegration = new aws_apigateway.LambdaIntegration(
       statusFunction
     );
+    // Add New Books
+    const addBooksFunctionIntegration = new aws_apigateway.LambdaIntegration(
+      addBooksFunction
+    );
 
+    // API Gateway
     // New Api gateway for all the functions
     const api = new aws_apigateway.RestApi(this, "simpleBookApi", {
       restApiName: "Simple Book Api",
     });
 
     // add root resources and methods to the api
+    // for base root ("/")
     api.root.addMethod("GET", welcomeFunctionIntegration);
-
+    // for status ("/status")
     const status = api.root.addResource("status");
     status.addMethod("GET", statusFunctionIntegration);
     addCorsOptions(status);
+    // for adding new book(/newbook)
+    const addNewBook = api.root.addResource("newbook");
+    addNewBook.addMethod("POST", addBooksFunctionIntegration);
+    addCorsOptions(addNewBook);
   }
 }
 
