@@ -11,6 +11,14 @@ export const handler = async (event: any, context: any): Promise<any> => {
   try {
     const response = await db.scan(params).promise();
 
+    // In case there is no book in data base
+    if (response.Count === 0) {
+      return {
+        statusCode: 200,
+        body: `{ "message": "No Books currently available" }`,
+      };
+    }
+
     // When there is limit in the query
     if (
       event.queryStringParameters &&
@@ -22,22 +30,22 @@ export const handler = async (event: any, context: any): Promise<any> => {
           statusCode: 200,
           body: `{ "message": "Enter Limit in numeric form" }`,
         };
-      }
-      if (parseInt(event.queryStringParameters.limit)) {
-        if (!response.Items) {
+      } else {
+        if (response.Items) {
           return {
             statusCode: 200,
-            body: `{ "message": "No Books currently available" }`,
+            body: JSON.stringify(
+              response.Items.slice(
+                0,
+                Math.abs(event.queryStringParameters.limit)
+              )
+            ),
           };
-        } else {
-          const result = response.Items.slice(
-            0,
-            Math.abs(event.queryStringParameters.limit)
-          );
-          return { statusCode: 200, body: JSON.stringify(result) };
         }
       }
     }
+
+    // When there is type in the query
     return { statusCode: 200, body: JSON.stringify(response.Items) };
   } catch (err) {
     console.log("DynamoDB error: ", err);
