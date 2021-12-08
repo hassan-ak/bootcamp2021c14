@@ -28,7 +28,7 @@ export const handler = async (event: any, context: any): Promise<any> => {
       if (!parseInt(event.queryStringParameters.limit)) {
         return {
           statusCode: 200,
-          body: `{ "message": "Enter Limit in numeric form" }`,
+          body: `{ "message": "Enter Limit in numeric form or greater than 0" }`,
         };
       } else {
         if (response.Items) {
@@ -45,7 +45,39 @@ export const handler = async (event: any, context: any): Promise<any> => {
       }
     }
 
-    // When there is type in the query
+    // When there is type in query
+    if (
+      event.queryStringParameters &&
+      !event.queryStringParameters.limit &&
+      event.queryStringParameters.type
+    ) {
+      if (
+        event.queryStringParameters.type.toLowerCase() !== "fiction" &&
+        event.queryStringParameters.type.toLowerCase() !== "non-fiction"
+      ) {
+        return {
+          statusCode: 200,
+          body: `{ "message": "Type should be 'fiction' or 'non-fiction'" }`,
+        };
+      } else {
+        if (response.Items) {
+          if (
+            response.Items.filter(
+              (item) =>
+                item.type === event.queryStringParameters.type.toLowerCase()
+            ).length === 0
+          ) {
+            return {
+              statusCode: 200,
+              body: `{ "message": "There is no book of type ${event.queryStringParameters.type.toLowerCase()}" }`,
+            };
+          }
+          return { statusCode: 200, body: JSON.stringify(response.Items) };
+        }
+      }
+    }
+
+    // No queries
     return { statusCode: 200, body: JSON.stringify(response.Items) };
   } catch (err) {
     console.log("DynamoDB error: ", err);
