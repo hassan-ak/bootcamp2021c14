@@ -105,7 +105,7 @@ export class SimpleBookApiStack extends Stack {
     const allBooks = api.root.addResource("books");
     allBooks.addMethod("GET", allBooksFunctionIntegration, {
       requestParameters: {
-        "method.request.querystring.type": false,
+        "method.request.querystring.book_type": false,
         "method.request.querystring.limit": false,
       },
     });
