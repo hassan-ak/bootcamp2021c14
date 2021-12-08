@@ -7,6 +7,7 @@ const db = new AWS.DynamoDB.DocumentClient();
 export const handler = async (event: any, context: any): Promise<any> => {
   const params = {
     TableName: TABLE_NAME_ALL,
+    ProjectionExpression: "book, author, price, bookID, book_type",
   };
   try {
     const response = await db.scan(params).promise();
@@ -23,7 +24,7 @@ export const handler = async (event: any, context: any): Promise<any> => {
     if (
       event.queryStringParameters &&
       event.queryStringParameters.limit &&
-      !event.queryStringParameters.type
+      !event.queryStringParameters.book_type
     ) {
       if (!parseInt(event.queryStringParameters.limit)) {
         return {
@@ -49,11 +50,11 @@ export const handler = async (event: any, context: any): Promise<any> => {
     if (
       event.queryStringParameters &&
       !event.queryStringParameters.limit &&
-      event.queryStringParameters.type
+      event.queryStringParameters.book_type
     ) {
       if (
-        event.queryStringParameters.type.toLowerCase() !== "fiction" &&
-        event.queryStringParameters.type.toLowerCase() !== "non-fiction"
+        event.queryStringParameters.book_type.toLowerCase() !== "fiction" &&
+        event.queryStringParameters.book_type.toLowerCase() !== "non-fiction"
       ) {
         return {
           statusCode: 200,
@@ -64,12 +65,13 @@ export const handler = async (event: any, context: any): Promise<any> => {
           if (
             response.Items.filter(
               (item) =>
-                item.type === event.queryStringParameters.type.toLowerCase()
+                item.book_type ===
+                event.queryStringParameters.book_type.toLowerCase()
             ).length === 0
           ) {
             return {
               statusCode: 200,
-              body: `{ "message": "There is no book of type ${event.queryStringParameters.type.toLowerCase()}" }`,
+              body: `{ "message": "There is no book of type ${event.queryStringParameters.book_type.toLowerCase()}" }`,
             };
           }
           return {
@@ -77,7 +79,8 @@ export const handler = async (event: any, context: any): Promise<any> => {
             body: JSON.stringify(
               response.Items.filter(
                 (item) =>
-                  item.type === event.queryStringParameters.type.toLowerCase()
+                  item.book_type ===
+                  event.queryStringParameters.book_type.toLowerCase()
               )
             ),
           };
@@ -89,11 +92,11 @@ export const handler = async (event: any, context: any): Promise<any> => {
     if (
       event.queryStringParameters &&
       event.queryStringParameters.limit &&
-      event.queryStringParameters.type
+      event.queryStringParameters.book_type
     ) {
       if (
-        event.queryStringParameters.type.toLowerCase() !== "fiction" &&
-        event.queryStringParameters.type.toLowerCase() !== "non-fiction"
+        event.queryStringParameters.book_type.toLowerCase() !== "fiction" &&
+        event.queryStringParameters.book_type.toLowerCase() !== "non-fiction"
       ) {
         return {
           statusCode: 200,
@@ -104,17 +107,19 @@ export const handler = async (event: any, context: any): Promise<any> => {
           if (
             response.Items.filter(
               (item) =>
-                item.type === event.queryStringParameters.type.toLowerCase()
+                item.book_type ===
+                event.queryStringParameters.book_type.toLowerCase()
             ).length === 0
           ) {
             return {
               statusCode: 200,
-              body: `{ "message": "There is no book of type ${event.queryStringParameters.type.toLowerCase()}" }`,
+              body: `{ "message": "There is no book of type ${event.queryStringParameters.book_type.toLowerCase()}" }`,
             };
           } else {
             const results = response.Items.filter(
               (item) =>
-                item.type === event.queryStringParameters.type.toLowerCase()
+                item.book_type ===
+                event.queryStringParameters.book_type.toLowerCase()
             );
             console.log(results);
             if (!parseInt(event.queryStringParameters.limit)) {
