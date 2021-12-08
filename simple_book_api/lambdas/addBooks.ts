@@ -11,10 +11,10 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 400,
       body: `Invalid Request, You are missing the parameter body. Give parameters in the following format.\n {
-          "name": "Book Name", 
+          "book": "Book Name", 
           "author": "Authos's Name", 
           "isbn": "Book isbn", 
-          "type": "Book Type (fiction/non-fiction)",
+          "book_type": "Book Type (fiction/non-fiction)",
           "price": Book Price, 
           "stock": Stock Capacity, 
           "available": true / false}`,
@@ -28,10 +28,10 @@ export const handler = async (event: any = {}): Promise<any> => {
     Item: item,
   };
   if (
-    !item.name ||
+    !item.book ||
     !item.author ||
     !item.isbn ||
-    !item.type ||
+    !item.book_type ||
     !item.price ||
     !item.stock ||
     !item.available
@@ -39,10 +39,10 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 400,
       body: `Invalid Request, You are missing some parameters in body. Give missing parameters.\n {
-          "name": ${item.name || "Missing"}, 
+          "book": ${item.book || "Missing"}, 
           "author": ${item.author || "Missing"}, 
           "isbn": ${item.isbn || "Missing"}, 
-          "type": ${item.type || "Missing"},
+          "book_type": ${item.book_type || "Missing"},
           "price": ${item.price || "Missing"}, 
           "stock": ${item.stock || "Missing"}, 
           "available": ${item.available || "Missing"}
@@ -55,10 +55,10 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 201,
       body: `Book with following detail success-fully added to the database.\n {
-        "name": ${item.name}, 
+        "book": ${item.book}, 
         "author": ${item.author}, 
         "isbn": ${item.isbn}, 
-        "type": ${item.type},
+        "book_type": ${item.book_type},
         "price": ${item.price}, 
         "stock": ${item.stock}, 
         "available": ${item.available}
