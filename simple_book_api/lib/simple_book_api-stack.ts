@@ -20,6 +20,14 @@ export class SimpleBookApiStack extends Stack {
         type: aws_dynamodb.AttributeType.STRING,
       },
     });
+    // Users Table
+    const usersTable = new aws_dynamodb.Table(this, "UsersTable", {
+      tableName: "Simple_Book_Api_Users",
+      partitionKey: {
+        name: "userEmail",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+    });
 
     // Lambda Functions
     // Welcome Function
@@ -73,11 +81,24 @@ export class SimpleBookApiStack extends Stack {
         TABLE_NAME_ALL: allBooksTable.tableName,
       },
     });
+    // User auth
+    const userAuthFunction = new aws_lambda.Function(this, "userAuthFunction", {
+      functionName: "User-Auth-Function-Simple-Book-Api",
+      runtime: aws_lambda.Runtime.NODEJS_14_X,
+      code: aws_lambda.Code.fromAsset("lambdas"),
+      handler: "userAuth.handler",
+      memorySize: 1024,
+      environment: {
+        PRIMARY_KEY_USER: "userEmail",
+        TABLE_NAME_USER: usersTable.tableName,
+      },
+    });
 
     // Grant the Lambda function read access to the DynamoDB table
     allBooksTable.grantReadWriteData(addBooksFunction);
     allBooksTable.grantReadWriteData(allBooksFunction);
     allBooksTable.grantReadWriteData(oneBookFunction);
+    usersTable.grantReadWriteData(userAuthFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
@@ -99,6 +120,10 @@ export class SimpleBookApiStack extends Stack {
     // Get One Book
     const oneBookFunctionIntegration = new aws_apigateway.LambdaIntegration(
       oneBookFunction
+    );
+    // User Auth
+    const userAuthFunctionIntegration = new aws_apigateway.LambdaIntegration(
+      userAuthFunction
     );
 
     // API Gateway
@@ -131,6 +156,10 @@ export class SimpleBookApiStack extends Stack {
     const oneBook = allBooks.addResource("{id}");
     oneBook.addMethod("GET", oneBookFunctionIntegration);
     addCorsOptions(oneBook);
+    // User Auth
+    const userAuth = api.root.addResource("api-clients");
+    userAuth.addMethod("POST", userAuthFunctionIntegration);
+    addCorsOptions(userAuth);
   }
 }
 
