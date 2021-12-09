@@ -20,6 +20,19 @@ export const handler = async (event: any = {}): Promise<any> => {
           "available": true / false}`,
     };
   }
+  if (Object.keys(JSON.parse(event.body)).length >= 7) {
+    return {
+      statusCode: 400,
+      body: `Invalid Request, You are giving too much in parameter body. Give parameters in the following format.\n {
+          "book": "Book Name", 
+          "author": "Authos's Name", 
+          "isbn": "Book isbn", 
+          "book_type": "Book Type (fiction/non-fiction)",
+          "price": Book Price, 
+          "stock": Stock Capacity, 
+          "available": true / false}`,
+    };
+  }
   const item =
     typeof event.body == "object" ? event.body : JSON.parse(event.body);
   item[PRIMARY_KEY_ALL] = randomBytes(32).toString("hex");
