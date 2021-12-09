@@ -7,7 +7,7 @@ const db = new AWS.DynamoDB.DocumentClient();
 export const handler = async (event: any, context: any): Promise<any> => {
   const params = {
     TableName: TABLE_NAME_ALL,
-    ProjectionExpression: "book, author, price, bookID, book_type",
+    ProjectionExpression: "book, bookID, book_type",
   };
   try {
     const response = await db.scan(params).promise();
