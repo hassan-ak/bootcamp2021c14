@@ -61,10 +61,23 @@ export class SimpleBookApiStack extends Stack {
         TABLE_NAME_ALL: allBooksTable.tableName,
       },
     });
+    // Get one book
+    const oneBookFunction = new aws_lambda.Function(this, "oneBookFunction", {
+      functionName: "One-Book-Function-Simple-Book-Api",
+      runtime: aws_lambda.Runtime.NODEJS_14_X,
+      code: aws_lambda.Code.fromAsset("lambdas"),
+      handler: "oneBook.handler",
+      memorySize: 1024,
+      environment: {
+        PRIMARY_KEY_ALL: "bookID",
+        TABLE_NAME_ALL: allBooksTable.tableName,
+      },
+    });
 
     // Grant the Lambda function read access to the DynamoDB table
     allBooksTable.grantReadWriteData(addBooksFunction);
     allBooksTable.grantReadWriteData(allBooksFunction);
+    allBooksTable.grantReadWriteData(oneBookFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
@@ -79,9 +92,13 @@ export class SimpleBookApiStack extends Stack {
     const addBooksFunctionIntegration = new aws_apigateway.LambdaIntegration(
       addBooksFunction
     );
-    // Add New Books
+    // GEt all books
     const allBooksFunctionIntegration = new aws_apigateway.LambdaIntegration(
       allBooksFunction
+    );
+    // Get One Book
+    const oneBookFunctionIntegration = new aws_apigateway.LambdaIntegration(
+      oneBookFunction
     );
 
     // API Gateway
@@ -110,6 +127,10 @@ export class SimpleBookApiStack extends Stack {
       },
     });
     addCorsOptions(allBooks);
+    // for listing single book
+    const oneBook = allBooks.addResource("{id}");
+    oneBook.addMethod("GET", oneBookFunctionIntegration);
+    addCorsOptions(oneBook);
   }
 }
 
