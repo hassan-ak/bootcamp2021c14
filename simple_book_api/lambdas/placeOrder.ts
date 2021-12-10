@@ -1,9 +1,12 @@
 import * as AWS from "aws-sdk";
+import { randomBytes } from "crypto";
 const db = new AWS.DynamoDB.DocumentClient();
 
 const TABLE_NAME_USER = process.env.TABLE_NAME_USER || "";
 const TABLE_NAME_ALL = process.env.TABLE_NAME_ALL || "";
 const PRIMARY_KEY_ALL = process.env.PRIMARY_KEY_ALL || "";
+const PRIMARY_KEY_ORDER = process.env.PRIMARY_KEY_ORDER || "";
+const TABLE_NAME_ORDER = process.env.TABLE_NAME_ORDER || "";
 
 export async function handler(event: any) {
   if (!event.headers.Authorization) {
@@ -98,11 +101,27 @@ export async function handler(event: any) {
           item["isbn"] = response2.Item.isbn;
           item["price"] = response2.Item.price;
           item["author"] = response2.Item.author;
-          console.log(item);
-          console.log(item.isbn);
+          item[PRIMARY_KEY_ORDER] = randomBytes(32).toString("hex");
+          const params3 = {
+            TableName: TABLE_NAME_ORDER,
+            Item: item,
+          };
+          await db.put(params3).promise();
           return {
-            statusCode: 200,
-            body: `{ "status": "OK from place Order" }`,
+            statusCode: 201,
+            body: `Order with following details success-fully placed.\n {
+                "orderID": ${item.orderID},
+                "userName":${item.userName},
+                "userEmail":${item.userEmail},
+                "book": ${item.book},
+                "author": ${item.author},
+                "book_type": ${item.book_type},
+                "price": ${item.price}, 
+                "noOfBooks": ${item.noOfBooks},
+                "user_ID":${item.user_ID},
+                "isbn": ${item.isbn}, 
+                "bookID": ${item.bookID}
+            }`,
           };
         }
       } else {
