@@ -120,6 +120,22 @@ export class SimpleBookApiStack extends Stack {
         },
       }
     );
+    // All Orders Function
+    const allOrdersFunction = new aws_lambda.Function(
+      this,
+      "allOrdersFunction",
+      {
+        functionName: "All-Orders-Function-Simple-Book-Api",
+        runtime: aws_lambda.Runtime.NODEJS_14_X,
+        code: aws_lambda.Code.fromAsset("lambdas"),
+        handler: "allOrders.handler",
+        memorySize: 1024,
+        environment: {
+          TABLE_NAME_USER: usersTable.tableName,
+          TABLE_NAME_ORDER: allOrdersTable.tableName,
+        },
+      }
+    );
 
     // Grant the Lambda function read access to the DynamoDB table
     allBooksTable.grantReadWriteData(addBooksFunction);
@@ -129,6 +145,8 @@ export class SimpleBookApiStack extends Stack {
     usersTable.grantReadWriteData(placeOrderFunction);
     allBooksTable.grantReadWriteData(placeOrderFunction);
     allOrdersTable.grantReadWriteData(placeOrderFunction);
+    usersTable.grantReadWriteData(allOrdersFunction);
+    allOrdersTable.grantReadWriteData(allOrdersFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
@@ -158,6 +176,10 @@ export class SimpleBookApiStack extends Stack {
     // Place Order
     const placeOrderFunctionIntegration = new aws_apigateway.LambdaIntegration(
       placeOrderFunction
+    );
+    // Place Order
+    const allOrdersFunctionIntegration = new aws_apigateway.LambdaIntegration(
+      allOrdersFunction
     );
 
     // API Gateway
@@ -194,9 +216,10 @@ export class SimpleBookApiStack extends Stack {
     const userAuth = api.root.addResource("api-clients");
     userAuth.addMethod("POST", userAuthFunctionIntegration);
     addCorsOptions(userAuth);
-    // Place Order
+    // Place Order - all Orders
     const placeOrder = api.root.addResource("orders");
     placeOrder.addMethod("POST", placeOrderFunctionIntegration);
+    placeOrder.addMethod("GET", allOrdersFunctionIntegration);
     addCorsOptions(placeOrder);
   }
 }
