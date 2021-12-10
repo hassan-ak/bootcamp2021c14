@@ -105,6 +105,8 @@ export class SimpleBookApiStack extends Stack {
         memorySize: 1024,
         environment: {
           TABLE_NAME_USER: usersTable.tableName,
+          PRIMARY_KEY_ALL: "bookID",
+          TABLE_NAME_ALL: allBooksTable.tableName,
         },
       }
     );
@@ -115,6 +117,7 @@ export class SimpleBookApiStack extends Stack {
     allBooksTable.grantReadWriteData(oneBookFunction);
     usersTable.grantReadWriteData(userAuthFunction);
     usersTable.grantReadWriteData(placeOrderFunction);
+    allBooksTable.grantReadWriteData(placeOrderFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
