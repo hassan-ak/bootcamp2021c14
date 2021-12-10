@@ -103,6 +103,9 @@ export class SimpleBookApiStack extends Stack {
         code: aws_lambda.Code.fromAsset("lambdas"),
         handler: "placeOrder.handler",
         memorySize: 1024,
+        environment: {
+          TABLE_NAME_USER: usersTable.tableName,
+        },
       }
     );
 
@@ -111,6 +114,7 @@ export class SimpleBookApiStack extends Stack {
     allBooksTable.grantReadWriteData(allBooksFunction);
     allBooksTable.grantReadWriteData(oneBookFunction);
     usersTable.grantReadWriteData(userAuthFunction);
+    usersTable.grantReadWriteData(placeOrderFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
