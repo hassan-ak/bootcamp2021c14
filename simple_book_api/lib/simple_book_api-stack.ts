@@ -28,6 +28,14 @@ export class SimpleBookApiStack extends Stack {
         type: aws_dynamodb.AttributeType.STRING,
       },
     });
+    // All Orders Table
+    const allOrdersTable = new aws_dynamodb.Table(this, "AllOrdersTable", {
+      tableName: "Simple_Book_Api_All_Orders",
+      partitionKey: {
+        name: "orderID",
+        type: aws_dynamodb.AttributeType.STRING,
+      },
+    });
 
     // Lambda Functions
     // Welcome Function
@@ -107,6 +115,8 @@ export class SimpleBookApiStack extends Stack {
           TABLE_NAME_USER: usersTable.tableName,
           PRIMARY_KEY_ALL: "bookID",
           TABLE_NAME_ALL: allBooksTable.tableName,
+          PRIMARY_KEY_ORDER: "orderID",
+          TABLE_NAME_ORDER: allOrdersTable.tableName,
         },
       }
     );
@@ -118,6 +128,7 @@ export class SimpleBookApiStack extends Stack {
     usersTable.grantReadWriteData(userAuthFunction);
     usersTable.grantReadWriteData(placeOrderFunction);
     allBooksTable.grantReadWriteData(placeOrderFunction);
+    allOrdersTable.grantReadWriteData(placeOrderFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
