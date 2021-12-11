@@ -166,6 +166,23 @@ export class SimpleBookApiStack extends Stack {
         },
       }
     );
+    // Delete one Order
+    const updateOneOrderFunction = new aws_lambda.Function(
+      this,
+      "updateOneOrderFunction",
+      {
+        functionName: "Update-One-Order-Function-Simple-Book-Api",
+        runtime: aws_lambda.Runtime.NODEJS_14_X,
+        code: aws_lambda.Code.fromAsset("lambdas"),
+        handler: "updateOneOrder.handler",
+        memorySize: 1024,
+        environment: {
+          TABLE_NAME_USER: usersTable.tableName,
+          TABLE_NAME_ORDER: allOrdersTable.tableName,
+          PRIMARY_KEY_ORDER: "orderID",
+        },
+      }
+    );
 
     // Grant the Lambda function read access to the DynamoDB table
     allBooksTable.grantReadWriteData(addBooksFunction);
@@ -181,6 +198,8 @@ export class SimpleBookApiStack extends Stack {
     allOrdersTable.grantReadWriteData(oneOrderFunction);
     usersTable.grantReadWriteData(deleteOneOrderFunction);
     allOrdersTable.grantReadWriteData(deleteOneOrderFunction);
+    usersTable.grantReadWriteData(updateOneOrderFunction);
+    allOrdersTable.grantReadWriteData(updateOneOrderFunction);
 
     // Lambda function integrations for the api gateway
     // Welcome message
@@ -219,8 +238,12 @@ export class SimpleBookApiStack extends Stack {
     const oneOrderFunctionIntegration = new aws_apigateway.LambdaIntegration(
       oneOrderFunction
     );
+    // Delete Order
     const deleteOneOrderFunctionIntegration =
       new aws_apigateway.LambdaIntegration(deleteOneOrderFunction);
+    // Update Order
+    const updateOneOrderFunctionIntegration =
+      new aws_apigateway.LambdaIntegration(updateOneOrderFunction);
 
     // API Gateway
     // New Api gateway for all the functions
@@ -261,10 +284,12 @@ export class SimpleBookApiStack extends Stack {
     placeOrder.addMethod("POST", placeOrderFunctionIntegration);
     placeOrder.addMethod("GET", allOrdersFunctionIntegration);
     placeOrder.addMethod("DELETE", deleteOneOrderFunctionIntegration);
+    placeOrder.addMethod("PATCH", updateOneOrderFunctionIntegration);
     addCorsOptions(placeOrder);
     const oneOrder = placeOrder.addResource("{id}");
     oneOrder.addMethod("GET", oneOrderFunctionIntegration);
     oneOrder.addMethod("DELETE", deleteOneOrderFunctionIntegration);
+    oneOrder.addMethod("PATCH", updateOneOrderFunctionIntegration);
     addCorsOptions(oneOrder);
   }
 }
