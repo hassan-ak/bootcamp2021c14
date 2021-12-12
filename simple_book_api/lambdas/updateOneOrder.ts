@@ -22,7 +22,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 400,
       body: `Invalid Request, You are missing the parameter body. Give parameters in the following format.\n {
-        "noOfBooks": "No of Books to order" 
+        "noOfBooks": "No of Books to order"
         }`,
     };
   }
@@ -30,7 +30,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 400,
       body: `Invalid Request, You are giving too much in the parameter body. Give parameters in the following format.\n {
-          "noOfBooks": "No of Books to order" 
+          "noOfBooks": "No of Books to order"
           }`,
     };
   }
@@ -45,7 +45,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     return {
       statusCode: 400,
       body: `Invalid Request, Give No. of books to order in the following format.\n{
-          "noOfBooks": "No of Books to order" 
+          "noOfBooks": "No of Books to order"
         }`,
     };
   }
@@ -78,12 +78,23 @@ export const handler = async (event: any = {}): Promise<any> => {
     };
   }
   const requestedItemId = event.pathParameters.id;
-  const params2 = {
+  const editedItemProperties = Object.keys(item);
+  const firstProperty = editedItemProperties.splice(0, 1);
+  const params2: any = {
     TableName: TABLE_NAME_ORDER,
     Key: {
       [PRIMARY_KEY_ORDER]: requestedItemId,
     },
+    UpdateExpression: `set ${firstProperty} = :${firstProperty}`,
+    ExpressionAttributeValues: {},
+    ReturnValues: "UPDATED_NEW",
   };
+  params2.ExpressionAttributeValues[`:${firstProperty}`] =
+    item[`${firstProperty}`];
+  editedItemProperties.forEach((property) => {
+    params2.UpdateExpression += `, ${property} = :${property}`;
+    params2.ExpressionAttributeValues[`:${property}`] = item[property];
+  });
   const response2 = await db.get(params2).promise();
   if (!response2.Item) {
     return {
@@ -96,9 +107,10 @@ export const handler = async (event: any = {}): Promise<any> => {
       response2.Item &&
       response2.Item.user_ID === event.headers.Authorization.split(" ")[1]
     ) {
+      await db.update(params2).promise();
       return {
         statusCode: 200,
-        body: `{ "Message": "Perform Operation" }`,
+        body: `{ "Message": "Order Updated" }`,
       };
     } else {
       return {
